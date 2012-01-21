@@ -3,5 +3,7 @@
 
     <string name="hello">Hello World, GTVPictoActivity!</string>
     <string name="app_name">GTVPicto</string>
+    <color name="text_color">#333333</color>
+    <color name="timer_danger">#E81C1C</color>
 
 </resources>
