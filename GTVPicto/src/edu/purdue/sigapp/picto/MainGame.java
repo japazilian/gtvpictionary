@@ -57,7 +57,7 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 	private ImageButton btn_clear, btn_tools, btn_correct, btn_incorrect;
 	public DrawingSurface ds_canvas;
 	private PhoneClient mPhoneClient;
-	private boolean isGTV = true;
+	private boolean isGTV = false;
 	public ProgressDialog progdialog;
 	private WordBank mWordBank;
 	
@@ -268,6 +268,14 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 					case ROUND:
 						final int timeLeft = mStopWatch.getTimeLeft(mRoundTime);
 						
+						if (timeLeft == 10) {
+							runOnUiThread(new Runnable() {
+							     public void run() {
+									 sm.PlaySound(SoundManager.TIMESUP_SOUND);
+							    }
+							});
+						}
+						
 						if (timeLeft <= 10) {
 							runOnUiThread(new Runnable() {
 							     public void run() {
@@ -380,7 +388,9 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 			// TODO Auto-generated method stub
 			switch (mState) {
 			case ASKREADY:
-				rl_dialogs.setOnTouchListener(MainGame.this);	
+				if (!isGTV) {
+					rl_dialogs.setOnTouchListener(MainGame.this);
+				}
 				break;
 			case COUNTDOWN:
 				rl_dialogs.removeAllViews();
@@ -395,7 +405,9 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 			case ROUND:
 				break;
 			case ASKENDROUND:
-				rl_dialogs.setOnTouchListener(MainGame.this);
+				if (!isGTV) {
+					rl_dialogs.setOnTouchListener(MainGame.this);
+				}
 				break;
 			}	
 		}
