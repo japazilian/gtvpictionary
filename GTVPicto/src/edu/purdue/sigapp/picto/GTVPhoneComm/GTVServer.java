@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import android.app.ProgressDialog;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.view.View;
@@ -28,8 +29,11 @@ public class GTVServer {
 		
 		Thread thread = new Thread(new Runnable() {
 
-			public void run() {
-				// TODO Auto-generated method stub
+			public void run() {/*
+				ProgressDialog dialog = ProgressDialog.show(mainGame, "", 
+		                "Looking for Phone. Please wait...", true);
+		        dialog.show();
+		        dialog.setCancelable(false);*/
 				try {
 			        serverSocket = new ServerSocket(4444);
 			    } catch (IOException e1) {

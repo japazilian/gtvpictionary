@@ -1,6 +1,7 @@
 package edu.purdue.sigapp.picto;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
@@ -57,6 +58,8 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 	public DrawingSurface ds_canvas;
 	private PhoneClient mPhoneClient;
 	private boolean isGTV = true;
+	public ProgressDialog progdialog;
+	private WordBank mWordBank;
 	
 	
 	// @CORNDAWG
@@ -73,12 +76,15 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
         	server.startServer();
         }
         else {
-        	mPhoneClient = new PhoneClient();
+        	mPhoneClient = new PhoneClient(this);
         	mPhoneClient.startClient();
         }
         
         // @CORNDAWG
         sm = new SoundManager(this);
+        
+        mWordBank = new WordBank();
+        mWordBank.loadWords();
         
         GameEngine gameEngine = new GameEngine();
         gameEngine.start();     
@@ -90,6 +96,7 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
         rl_dialogs = (RelativeLayout) findViewById(R.id.relativeLayout1);
         rl_screen = (RelativeLayout) findViewById(R.id.relativeLayout2);
         txt_timer = (TextView) findViewById(R.id.txt_timer);
+        txt_word = (TextView) findViewById(R.id.txt_word);
         btn_correct = (ImageButton) findViewById(R.id.btn_correct);
         btn_correct.setOnClickListener(this);
         btn_incorrect = (ImageButton) findViewById(R.id.btn_incorrect);
@@ -103,6 +110,13 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
         SurfaceHolder h = ds_canvas.getHolder();
         h.setFormat(PixelFormat.TRANSPARENT);
         
+        if (isGTV) {
+        	txt_word.setVisibility(View.INVISIBLE);
+        	btn_correct.setVisibility(View.INVISIBLE);
+        	btn_incorrect.setVisibility(View.INVISIBLE);
+        	btn_clear.setVisibility(View.INVISIBLE);
+        	btn_tools.setVisibility(View.INVISIBLE);
+        }
         
 		mStopWatch = new StopWatch();
 		mTeamScores = new int[mTeamNum];
@@ -116,6 +130,7 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 		     public void run() {
 		    	 txt_timer.setText(""+mRoundTime);
 		    	 txt_timer.setTextColor(getResources().getColor(R.color.text_color));
+		    	 txt_word.setText("Picto");
 				btn_correct.setEnabled(false);
 				btn_incorrect.setEnabled(false);
 				btn_tools.setEnabled(false);
@@ -178,6 +193,7 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 			ds_canvas.setOnTouchListener(this);
 		}
 		setCurrentPaint();
+		txt_word.setText(mWordBank.getNextWord());
 	}
 	
 	private void showEndRound() {
@@ -211,6 +227,8 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 		if (mCurrTeam == mTeamNum) {
 			if (mCurrRound == mRoundNum) {
 				// end of game
+				mState = ENDGAME;
+				mWordBank.resetUsedWords();
 			}
 			else {
 				// go to next round
@@ -405,6 +423,7 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 			if (!isGTV) {
 				mPhoneClient.sendBtnCorrect();
 			}
+			txt_word.setText(mWordBank.getNextWord());
 			break;
 		case R.id.btn_incorrect:
 			// change word
@@ -414,6 +433,7 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 			if (!isGTV) {
 				mPhoneClient.sendBtnIncorrect();
 			}
+			txt_word.setText(mWordBank.getNextWord());
 			break;
 		case R.id.btn_draw_tools:
 			break;
