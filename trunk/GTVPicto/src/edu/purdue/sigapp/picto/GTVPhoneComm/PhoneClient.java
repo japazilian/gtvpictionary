@@ -7,7 +7,11 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import edu.purdue.sigapp.picto.DrawingPoint;
+import edu.purdue.sigapp.picto.MainGame;
 
 public class PhoneClient {
 	
@@ -15,19 +19,43 @@ public class PhoneClient {
 	private int port = 4444;
     PrintWriter out = null;
     BufferedReader in = null;
+    private MainGame mainGame;
+    
+    public PhoneClient(MainGame mainGame) {
+    	this.mainGame = mainGame;
+    }
 	
 	public void startClient() {
         Socket clientSocket = null;
- 
-        try {
-            clientSocket = new Socket(host, port);
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        mainGame.runOnUiThread(new Runnable() {
+
+			public void run() {
+				// TODO Auto-generated method stub
+				mainGame.progdialog = ProgressDialog.show(mainGame, "", 
+		                "Looking for GTV. Please wait...", true);
+				mainGame.progdialog.setCancelable(false);
+				mainGame.progdialog.show();		        
+			}
+        	
+        });
+        while (clientSocket == null) {
+	        try {
+	            clientSocket = new Socket(host, port);
+	            out = new PrintWriter(clientSocket.getOutputStream(), true);
+	            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+	        } catch (UnknownHostException e) {
+	            e.printStackTrace();
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
         }
+        mainGame.runOnUiThread(new Runnable() {
+
+			public void run() {
+				mainGame.progdialog.dismiss();
+			}
+        	
+        });
  
         /*BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
         String fromServer;
