@@ -133,10 +133,4 @@ public class DrawingSurface extends SurfaceView implements SurfaceHolder.Callbac
             }
         }*/
 	}
-	}
-
-class DrawingPoint {
-  public Point point;
-  public Paint paint;
-  boolean newPath = false;
 }
