@@ -39,19 +39,24 @@
         android:layout_alignParentLeft="true"
         android:orientation="horizontal" >
 
-        <Button
+        <ImageButton
             android:id="@+id/btn_incorrect"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.75"
-            android:text="Incorrect" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:src="@drawable/incorrect_btn" 
+            android:layout_weight=".5" 
+            android:background="#0000" 
+            android:scaleType="fitXY" />
 
-        <Button
+        <ImageButton
             android:id="@+id/btn_correct"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.25"
-            android:text="Correct" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:background="#0000" 
+            android:layout_weight=".5" 
+            android:src="@drawable/correct_btn"
+            android:scaleType="fitXY" />
+        
     </LinearLayout>
 
     <edu.purdue.sigapp.picto.DrawingSurface
