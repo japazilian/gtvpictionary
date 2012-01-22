@@ -15,7 +15,6 @@ import android.view.View.OnTouchListener;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -57,7 +56,7 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 	private ImageButton btn_clear, btn_tools, btn_correct, btn_incorrect;
 	public DrawingSurface ds_canvas;
 	private PhoneClient mPhoneClient;
-	private boolean isGTV = false;
+	private boolean isGTV = true;
 	
 	
 	// @CORNDAWG
@@ -404,7 +403,7 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 			mTeamScores[mCurrTeam-1]++;
 			sm.PlaySound(SoundManager.POSITIVE_SOUND);
 			if (!isGTV) {
-				mPhoneClient.sendClear();
+				mPhoneClient.sendBtnCorrect();
 			}
 			break;
 		case R.id.btn_incorrect:
@@ -413,7 +412,7 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 			ds_canvas.invalidate();
 			sm.PlaySound(SoundManager.NEGATIVE_SOUND);
 			if (!isGTV) {
-				mPhoneClient.sendClear();
+				mPhoneClient.sendBtnIncorrect();
 			}
 			break;
 		case R.id.btn_draw_tools:
@@ -423,7 +422,7 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 			ds_canvas.invalidate();
 			sm.PlaySound(SoundManager.CLEAR_SOUND);
 			if (!isGTV) {
-				mPhoneClient.sendClear();
+				mPhoneClient.sendBtnClear();
 			}
 			break;
 		}
