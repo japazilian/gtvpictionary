@@ -1,6 +1,7 @@
 package edu.purdue.sigapp.picto;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,6 +29,8 @@ public class StartScreen extends Activity implements OnClickListener{
     public void onClick(View arg0) {
     	if (arg0.getId() == R.id.imageButton1) {
     		sm.PlaySound(SoundManager.POSITIVE_SOUND);
+    		Intent sni = new Intent(StartScreen.this, MainGame.class);
+			startActivity(sni);
     	}
     	else if (arg0.getId() == R.id.imageButton2) {
     	}
