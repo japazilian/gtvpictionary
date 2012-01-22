@@ -4,13 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" android:background="#FFFFFF">
 
-    <Button
+    <ImageButton
         android:id="@+id/btn_draw_tools"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:text="Tools" />
+        android:layout_alignParentTop="true" android:background="#0000" android:src="@drawable/tools_btn"/>
 
     <TextView
         android:id="@+id/txt_timer"
@@ -73,12 +72,11 @@
         android:layout_centerVertical="true" >
     </RelativeLayout>
 
-    <Button
+    <ImageButton
         android:id="@+id/btn_clear"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/btn_draw_tools"
-        android:text="Clear" />
+        android:layout_toRightOf="@+id/btn_draw_tools" android:src="@drawable/clear_btn" android:background="#0000"/>
 
 </RelativeLayout>

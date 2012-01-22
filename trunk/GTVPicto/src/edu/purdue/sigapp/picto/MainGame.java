@@ -16,6 +16,7 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -51,14 +52,21 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 	
 	private RelativeLayout rl_dialogs, rl_screen; 
 	private TextView txt_timer, txt_word;
-	private Button btn_correct, btn_incorrect, btn_tools, btn_clear;
+	private Button btn_correct, btn_incorrect; 
+	private ImageButton btn_clear, btn_tools;;
 	private DrawingSurface ds_canvas;
+	
+	// @CORNDAWG
+	SoundManager sm;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game);
         setUpGUI();
+        
+        // @CORNDAWG
+        sm = new SoundManager(this);
         
         GameEngine gameEngine = new GameEngine();
         gameEngine.start();     
@@ -74,9 +82,9 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
         btn_correct.setOnClickListener(this);
         btn_incorrect = (Button) findViewById(R.id.btn_incorrect);
         btn_incorrect.setOnClickListener(this);
-        btn_tools = (Button) findViewById(R.id.btn_draw_tools);
+        btn_tools = (ImageButton) findViewById(R.id.btn_draw_tools);
         btn_tools.setOnClickListener(this);
-        btn_clear = (Button) findViewById(R.id.btn_clear);
+        btn_clear = (ImageButton) findViewById(R.id.btn_clear);
         btn_clear.setOnClickListener(this);
         ds_canvas = (DrawingSurface) findViewById(R.id.surfaceView1);
         ds_canvas.setZOrderOnTop(true);    // necessary
@@ -283,6 +291,7 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 				rl_dialogs.removeAllViews();
 				rl_dialogs.setOnTouchListener(null);
 				mState = COUNTDOWN;
+				sm.PlaySound(SoundManager.COUNTDOWN_SOUND);
 				roundCountdown();				
 				break;
 			case COUNTDOWN:
@@ -364,16 +373,19 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 		switch(v.getId()) {
 		case R.id.btn_correct:
 			mTeamScores[mCurrTeam-1]++;
+			sm.PlaySound(SoundManager.POSITIVE_SOUND);
 		case R.id.btn_incorrect:
 			// change word
 			ds_canvas.clearDrawingPath();
 			ds_canvas.invalidate();
+			sm.PlaySound(SoundManager.NEGATIVE_SOUND);
 			break;
 		case R.id.btn_draw_tools:
 			break;
 		case R.id.btn_clear:
 			ds_canvas.clearDrawingPath();
 			ds_canvas.invalidate();
+			sm.PlaySound(SoundManager.CLEAR_SOUND);
 			break;
 		}
 		
