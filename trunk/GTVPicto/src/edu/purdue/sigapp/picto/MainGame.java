@@ -19,6 +19,8 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import edu.purdue.sigapp.picto.GTVPhoneComm.GTVServer;
+import edu.purdue.sigapp.picto.GTVPhoneComm.PhoneClient;
 
 /**
  * 
@@ -54,7 +56,10 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 	private TextView txt_timer, txt_word;
 	private Button btn_correct, btn_incorrect; 
 	private ImageButton btn_clear, btn_tools;;
-	private DrawingSurface ds_canvas;
+	public DrawingSurface ds_canvas;
+	private PhoneClient mPhoneClient;
+	private boolean isGTV = false;
+	
 	
 	// @CORNDAWG
 	SoundManager sm;
@@ -64,6 +69,15 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game);
         setUpGUI();
+        
+        if (isGTV) {
+        	GTVServer server = new GTVServer(this);
+        	server.startServer();
+        }
+        else {
+        	mPhoneClient = new PhoneClient();
+        	mPhoneClient.startClient();
+        }
         
         // @CORNDAWG
         sm = new SoundManager(this);
@@ -162,7 +176,9 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 		btn_tools.setEnabled(true);
 		btn_clear.setEnabled(true);
 		rl_dialogs.setVisibility(View.GONE);
-		ds_canvas.setOnTouchListener(this);
+		if (!isGTV) {
+			ds_canvas.setOnTouchListener(this);
+		}
 		setCurrentPaint();
 	}
 	
@@ -178,6 +194,9 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 				ds_canvas.setOnTouchListener(null);
 				ds_canvas.clearDrawingPath();
 				ds_canvas.invalidate();
+				if (!isGTV) {
+					mPhoneClient.sendClear();
+				}
 		 		TextView txt_ready = new TextView(MainGame.this);
 		 		txt_ready.setTextColor(getResources().getColor(R.color.text_color));
 		 		txt_ready.setTextSize(30);
@@ -304,6 +323,9 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 				mState = STARTROUND;				
 				break;
 			}
+			if (!isGTV) {
+				mPhoneClient.sendTouch();
+			}
 			break;
 		case R.id.surfaceView1:
 			if(motionEvent.getAction() == MotionEvent.ACTION_DOWN ){
@@ -312,7 +334,10 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 				point.point = new Point((int)motionEvent.getX(), (int)motionEvent.getY());
 				point.newPath = true;
 				ds_canvas.addDrawingPath(point);
-				ds_canvas.invalidate();
+				ds_canvas.invalidate(); 
+				if (!isGTV) {
+					mPhoneClient.sendPoint(point);
+				}
 				return true;
 			}/*else if(motionEvent.getAction() == MotionEvent.ACTION_MOVE){
 				mCurDrawingPoint.path.lineTo(motionEvent.getX(), motionEvent.getY());
@@ -324,6 +349,9 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 				point.point = new Point((int)motionEvent.getX(), (int)motionEvent.getY());
 				ds_canvas.addDrawingPath(point);
 				ds_canvas.invalidate();
+				if (!isGTV) {
+					mPhoneClient.sendPoint(point);
+				}
 				return true;
 			}
 		}
@@ -374,11 +402,17 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 		case R.id.btn_correct:
 			mTeamScores[mCurrTeam-1]++;
 			sm.PlaySound(SoundManager.POSITIVE_SOUND);
+			if (!isGTV) {
+				mPhoneClient.sendClear();
+			}
 		case R.id.btn_incorrect:
 			// change word
 			ds_canvas.clearDrawingPath();
 			ds_canvas.invalidate();
 			sm.PlaySound(SoundManager.NEGATIVE_SOUND);
+			if (!isGTV) {
+				mPhoneClient.sendClear();
+			}
 			break;
 		case R.id.btn_draw_tools:
 			break;
@@ -386,6 +420,9 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 			ds_canvas.clearDrawingPath();
 			ds_canvas.invalidate();
 			sm.PlaySound(SoundManager.CLEAR_SOUND);
+			if (!isGTV) {
+				mPhoneClient.sendClear();
+			}
 			break;
 		}
 		

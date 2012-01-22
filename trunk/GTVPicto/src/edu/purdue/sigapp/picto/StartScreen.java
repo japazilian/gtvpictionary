@@ -25,8 +25,7 @@ public class StartScreen extends Activity implements OnClickListener{
         sm = new SoundManager(this);
     }
     
-    @Override
-	public void onClick(View arg0) {
+    public void onClick(View arg0) {
     	if (arg0.getId() == R.id.imageButton1) {
     		sm.PlaySound(SoundManager.POSITIVE_SOUND);
     	}
