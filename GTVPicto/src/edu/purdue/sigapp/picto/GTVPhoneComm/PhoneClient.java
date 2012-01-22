@@ -21,8 +21,9 @@ public class PhoneClient {
     BufferedReader in = null;
     private MainGame mainGame;
     
-    public PhoneClient(MainGame mainGame) {
+    public PhoneClient(MainGame mainGame, String code) {
     	this.mainGame = mainGame;
+    	host = code;
     }
 	
 	public void startClient() {

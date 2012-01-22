@@ -69,6 +69,12 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game);
+        
+        
+        isGTV = getIntent().getExtras().getBoolean("isGTV");
+        String code = getIntent().getExtras().getString("code");
+        
+        
         setUpGUI();
         
         if (isGTV) {
@@ -76,7 +82,7 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
         	server.startServer();
         }
         else {
-        	mPhoneClient = new PhoneClient(this);
+        	mPhoneClient = new PhoneClient(this, code);
         	mPhoneClient.startClient();
         }
         
@@ -334,8 +340,8 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 				rl_dialogs.removeAllViews();
 				rl_dialogs.setOnTouchListener(null);
 				mState = COUNTDOWN;
-				sm.PlaySound(SoundManager.COUNTDOWN_SOUND);
-				roundCountdown();				
+				roundCountdown();
+				sm.PlaySound(SoundManager.COUNTDOWN_SOUND);				
 				break;
 			case COUNTDOWN:
 				break;
@@ -431,31 +437,31 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 			ds_canvas.clearDrawingPath();
 			ds_canvas.invalidate();
 			mTeamScores[mCurrTeam-1]++;
-			sm.PlaySound(SoundManager.POSITIVE_SOUND);
 			if (!isGTV) {
 				mPhoneClient.sendBtnCorrect();
 			}
 			txt_word.setText(mWordBank.getNextWord());
+			sm.PlaySound(SoundManager.POSITIVE_SOUND);
 			break;
 		case R.id.btn_incorrect:
 			// change word
 			ds_canvas.clearDrawingPath();
 			ds_canvas.invalidate();
-			sm.PlaySound(SoundManager.NEGATIVE_SOUND);
 			if (!isGTV) {
 				mPhoneClient.sendBtnIncorrect();
 			}
 			txt_word.setText(mWordBank.getNextWord());
+			sm.PlaySound(SoundManager.NEGATIVE_SOUND);
 			break;
 		case R.id.btn_draw_tools:
 			break;
 		case R.id.btn_clear:
 			ds_canvas.clearDrawingPath();
 			ds_canvas.invalidate();
-			sm.PlaySound(SoundManager.CLEAR_SOUND);
 			if (!isGTV) {
 				mPhoneClient.sendBtnClear();
 			}
+			sm.PlaySound(SoundManager.CLEAR_SOUND);
 			break;
 		}
 		
