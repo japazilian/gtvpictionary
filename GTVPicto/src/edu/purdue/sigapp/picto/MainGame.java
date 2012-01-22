@@ -54,8 +54,7 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 	
 	private RelativeLayout rl_dialogs, rl_screen; 
 	private TextView txt_timer, txt_word;
-	private Button btn_correct, btn_incorrect; 
-	private ImageButton btn_clear, btn_tools;;
+	private ImageButton btn_clear, btn_tools, btn_correct, btn_incorrect;
 	public DrawingSurface ds_canvas;
 	private PhoneClient mPhoneClient;
 	private boolean isGTV = false;
@@ -92,9 +91,9 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
         rl_dialogs = (RelativeLayout) findViewById(R.id.relativeLayout1);
         rl_screen = (RelativeLayout) findViewById(R.id.relativeLayout2);
         txt_timer = (TextView) findViewById(R.id.txt_timer);
-        btn_correct = (Button) findViewById(R.id.btn_correct);
+        btn_correct = (ImageButton) findViewById(R.id.btn_correct);
         btn_correct.setOnClickListener(this);
-        btn_incorrect = (Button) findViewById(R.id.btn_incorrect);
+        btn_incorrect = (ImageButton) findViewById(R.id.btn_incorrect);
         btn_incorrect.setOnClickListener(this);
         btn_tools = (ImageButton) findViewById(R.id.btn_draw_tools);
         btn_tools.setOnClickListener(this);
@@ -400,11 +399,14 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 		// TODO Auto-generated method stub
 		switch(v.getId()) {
 		case R.id.btn_correct:
+			ds_canvas.clearDrawingPath();
+			ds_canvas.invalidate();
 			mTeamScores[mCurrTeam-1]++;
 			sm.PlaySound(SoundManager.POSITIVE_SOUND);
 			if (!isGTV) {
 				mPhoneClient.sendClear();
 			}
+			break;
 		case R.id.btn_incorrect:
 			// change word
 			ds_canvas.clearDrawingPath();
