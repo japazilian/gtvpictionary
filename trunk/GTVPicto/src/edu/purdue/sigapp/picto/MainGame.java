@@ -1,17 +1,30 @@
 package edu.purdue.sigapp.picto;
 
 import android.app.Activity;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PixelFormat;
+import android.graphics.Point;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class MainGame extends Activity implements OnTouchListener {
+/**
+ * 
+ * @author rodrigo
+ * drawing canvas used from http://www.tutorialforandroid.com/2010/11/drawing-with-canvas-in-android-renewed.html
+ */
+public class MainGame extends Activity implements OnTouchListener, OnClickListener {
 
 	private boolean mGameDone = false;
 	private final int STARTROUND = 0;
@@ -20,19 +33,26 @@ public class MainGame extends Activity implements OnTouchListener {
 	private final int ENDGAME = 3;
 	private final int ASKREADY = 4;
 	private final int COUNTDOWN = 5;
+	private final int ASKENDROUND = 6;
 	public int mState = STARTROUND;
 	
-	private int mCurrTeam = 0;
+	private int mCurrTeam = 1;
+	private int mCurrRound = 1;
+	private int[] mTeamScores;
 	private int mCountdownValue = 3;
 	private StopWatch mStopWatch;
+	private Paint mCurPaint;
+	private DrawingPoint mCurDrawingPoint;
 	
 	// Set by main screen
 	private int mTeamNum = 2; 
-	private int mRoundTime = 30;
+	private int mRoundTime = 60;
 	private int mRoundNum = 3;
 	
-	private RelativeLayout rl_dialogs; 
+	private RelativeLayout rl_dialogs, rl_screen; 
 	private TextView txt_timer, txt_word;
+	private Button btn_correct, btn_incorrect, btn_tools, btn_clear;
+	private DrawingSurface ds_canvas;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,26 +68,57 @@ public class MainGame extends Activity implements OnTouchListener {
 	
 	public void setUpGUI() {
         rl_dialogs = (RelativeLayout) findViewById(R.id.relativeLayout1);
+        rl_screen = (RelativeLayout) findViewById(R.id.relativeLayout2);
         txt_timer = (TextView) findViewById(R.id.txt_timer);
+        btn_correct = (Button) findViewById(R.id.btn_correct);
+        btn_correct.setOnClickListener(this);
+        btn_incorrect = (Button) findViewById(R.id.btn_incorrect);
+        btn_incorrect.setOnClickListener(this);
+        btn_tools = (Button) findViewById(R.id.btn_draw_tools);
+        btn_tools.setOnClickListener(this);
+        btn_clear = (Button) findViewById(R.id.btn_clear);
+        btn_clear.setOnClickListener(this);
+        ds_canvas = (DrawingSurface) findViewById(R.id.surfaceView1);
+        ds_canvas.setZOrderOnTop(true);    // necessary
+        SurfaceHolder h = ds_canvas.getHolder();
+        h.setFormat(PixelFormat.TRANSPARENT);
+        
+        
 		mStopWatch = new StopWatch();
+		mTeamScores = new int[mTeamNum];
+		for (int i=0; i<mTeamNum; i++) {
+			mTeamScores[i] = 0;
+		}
 	}
 	
 	private void askRoundStart() {
-
-        txt_timer.setText(""+mRoundTime);
-		// Ask if team is ready
-		// Let's put in a textview for now, maybe we can use an image later
-		TextView txt_ready = new TextView(this);
-		txt_ready.setText("Team "+mCurrTeam+" ready?");
-		txt_ready.setTextColor(R.color.text_color);
-		txt_ready.setTextSize(30);
-		rl_dialogs.addView(txt_ready);
-		final Animation animation = 
-			AnimationUtils.loadAnimation(this, R.anim.round_start);
-		animation.reset();
-		animation.setAnimationListener(showRoundStartListener);
-		rl_dialogs.startAnimation(animation);
-		mState = ASKREADY;
+		runOnUiThread(new Runnable() {
+		     public void run() {
+		    	 txt_timer.setText(""+mRoundTime);
+		    	 txt_timer.setTextColor(getResources().getColor(R.color.text_color));
+				btn_correct.setEnabled(false);
+				btn_incorrect.setEnabled(false);
+				btn_tools.setEnabled(false);
+				btn_clear.setEnabled(false);
+				rl_dialogs.setVisibility(View.VISIBLE);
+				ds_canvas.setOnTouchListener(null);
+		 		// Ask if team is ready
+		 		// Let's put in a textview for now, maybe we can use an image later
+		 		TextView txt_ready = new TextView(MainGame.this);
+		 		txt_ready.setGravity(Gravity.CENTER);
+		 		txt_ready.setText("Team "+mCurrTeam+" ready?\n"+"Touch here to begin.");
+		 		txt_ready.setTextColor(getResources().getColor(R.color.text_color));
+		 		txt_ready.setTextSize(30);
+		 		rl_dialogs.addView(txt_ready);
+		 		final Animation animation = 
+		 			AnimationUtils.loadAnimation(MainGame.this, R.anim.round_start);
+		 		animation.reset();
+		 		animation.setAnimationListener(showRoundStartListener);
+		 		rl_dialogs.startAnimation(animation);
+		 		mState = ASKREADY;
+		    }
+		});
+        
 	}
 	
 	private void roundCountdown() {
@@ -96,7 +147,66 @@ public class MainGame extends Activity implements OnTouchListener {
 	private void roundStart() {
 		mCountdownValue = 3;
 		mStopWatch.setSW();
-		mState = ROUND;		
+		mState = ROUND;	
+
+		btn_correct.setEnabled(true);
+		btn_incorrect.setEnabled(true);
+		btn_tools.setEnabled(true);
+		btn_clear.setEnabled(true);
+		rl_dialogs.setVisibility(View.GONE);
+		ds_canvas.setOnTouchListener(this);
+		setCurrentPaint();
+	}
+	
+	private void showEndRound() {
+		mState = ASKENDROUND;
+		runOnUiThread(new Runnable() {
+		     public void run() {
+				btn_correct.setEnabled(false);
+				btn_incorrect.setEnabled(false);
+				btn_tools.setEnabled(false);
+				btn_clear.setEnabled(false);
+				rl_dialogs.setVisibility(View.VISIBLE);
+				ds_canvas.setOnTouchListener(null);
+				ds_canvas.clearDrawingPath();
+				ds_canvas.invalidate();
+		 		TextView txt_ready = new TextView(MainGame.this);
+		 		txt_ready.setTextColor(getResources().getColor(R.color.text_color));
+		 		txt_ready.setTextSize(30);
+		 		txt_ready.setText(getGameScore());
+		 		rl_dialogs.addView(txt_ready);
+		 		final Animation animation = 
+					AnimationUtils.loadAnimation(MainGame.this, R.anim.end_round);
+				animation.reset();
+				animation.setAnimationListener(showRoundStartListener);
+				rl_dialogs.startAnimation(animation);
+		    }
+		});
+		
+		if (mCurrTeam == mTeamNum) {
+			if (mCurrRound == mRoundNum) {
+				// end of game
+			}
+			else {
+				// go to next round
+				mCurrTeam = 1;
+				mCurrRound++;
+			}
+		}
+		else {
+			mCurrTeam++;
+		}
+	}
+	
+	private String getGameScore() {
+		StringBuilder ret = new StringBuilder();
+		ret.append("Scoreboard\n\n");
+		for (int i=1; i<mTeamNum+1; i++) {
+			ret.append("Team "+i+": ");
+			ret.append(mTeamScores[i-1]+" points\n");
+		}
+		
+		return ret.toString();
 	}
 
 	private class GameEngine extends Thread {
@@ -107,7 +217,7 @@ public class MainGame extends Activity implements OnTouchListener {
 			while(!mGameDone) // outer game loop
 			{
 				try {
-					Thread.sleep(10);
+					Thread.sleep(500);
 					switch (mState) {
 					case STARTROUND:
 						askRoundStart();
@@ -133,8 +243,14 @@ public class MainGame extends Activity implements OnTouchListener {
 							    }
 							});
 						}
+						if (timeLeft == 0) {
+							mState = ENDROUND;
+						}
 						break;
 					case ENDROUND:
+						showEndRound();
+						break;
+					case ASKENDROUND:
 						break;
 					case ENDGAME:
 						break;
@@ -148,8 +264,18 @@ public class MainGame extends Activity implements OnTouchListener {
 		}
 
 	}
+	
+	private void setCurrentPaint(){
+	    mCurPaint = new Paint();
+	    mCurPaint.setDither(true);
+	    mCurPaint.setColor(Color.BLACK);
+	    mCurPaint.setStyle(Paint.Style.STROKE);
+	    mCurPaint.setStrokeJoin(Paint.Join.ROUND);
+	    mCurPaint.setStrokeCap(Paint.Cap.ROUND);
+	    mCurPaint.setStrokeWidth(3);
+	}
 
-	public boolean onTouch(View v, MotionEvent event) {
+	public boolean onTouch(View v, MotionEvent motionEvent) {
 		switch(v.getId()) {
 		case R.id.relativeLayout1:
 			switch(mState) {
@@ -163,8 +289,34 @@ public class MainGame extends Activity implements OnTouchListener {
 				break;
 			case ROUND:
 				break;
+			case ASKENDROUND:
+				rl_dialogs.removeAllViews();
+				rl_dialogs.setOnTouchListener(null);
+				mState = STARTROUND;				
+				break;
 			}
 			break;
+		case R.id.surfaceView1:
+			if(motionEvent.getAction() == MotionEvent.ACTION_DOWN ){
+				DrawingPoint point = new DrawingPoint();
+				point.paint = mCurPaint;
+				point.point = new Point((int)motionEvent.getX(), (int)motionEvent.getY());
+				point.newPath = true;
+				ds_canvas.addDrawingPath(point);
+				ds_canvas.invalidate();
+				return true;
+			}/*else if(motionEvent.getAction() == MotionEvent.ACTION_MOVE){
+				mCurDrawingPoint.path.lineTo(motionEvent.getX(), motionEvent.getY());
+				return true;
+			}*/else if(motionEvent.getAction() == MotionEvent.ACTION_UP ||
+					motionEvent.getAction() == MotionEvent.ACTION_MOVE){
+				DrawingPoint point = new DrawingPoint();
+				point.paint = mCurPaint;
+				point.point = new Point((int)motionEvent.getX(), (int)motionEvent.getY());
+				ds_canvas.addDrawingPath(point);
+				ds_canvas.invalidate();
+				return true;
+			}
 		}
 		return false;
 	}
@@ -189,6 +341,9 @@ public class MainGame extends Activity implements OnTouchListener {
 				break;
 			case ROUND:
 				break;
+			case ASKENDROUND:
+				rl_dialogs.setOnTouchListener(MainGame.this);
+				break;
 			}	
 		}
 
@@ -203,5 +358,25 @@ public class MainGame extends Activity implements OnTouchListener {
 		}
 		
 	};
+
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		switch(v.getId()) {
+		case R.id.btn_correct:
+			mTeamScores[mCurrTeam-1]++;
+		case R.id.btn_incorrect:
+			// change word
+			ds_canvas.clearDrawingPath();
+			ds_canvas.invalidate();
+			break;
+		case R.id.btn_draw_tools:
+			break;
+		case R.id.btn_clear:
+			ds_canvas.clearDrawingPath();
+			ds_canvas.invalidate();
+			break;
+		}
+		
+	}
 }
 
