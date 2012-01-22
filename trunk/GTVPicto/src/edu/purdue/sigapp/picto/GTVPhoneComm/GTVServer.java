@@ -7,9 +7,9 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.view.View;
 import edu.purdue.sigapp.picto.DrawingPoint;
 import edu.purdue.sigapp.picto.MainGame;
 import edu.purdue.sigapp.picto.R;
@@ -108,6 +108,39 @@ public class GTVServer {
 
 				public void run() {
 					mainGame.onTouch(mainGame.findViewById(R.id.relativeLayout1), null);
+				}
+				
+			});
+		}
+		else if (inputLine.startsWith(""+Constants.BTNCORRECT)) {
+			mainGame.runOnUiThread(new Runnable() {
+
+				public void run() {
+					View v = new View(mainGame);
+					v.setId(R.id.btn_correct);
+					mainGame.onClick(v);
+				}
+				
+			});
+		}
+		else if (inputLine.startsWith(""+Constants.BTNINCORRECT)) {
+			mainGame.runOnUiThread(new Runnable() {
+
+				public void run() {
+					View v = new View(mainGame);
+					v.setId(R.id.btn_incorrect);
+					mainGame.onClick(v);
+				}
+				
+			});
+		}
+		else if (inputLine.startsWith(""+Constants.BTNCLEAR)) {
+			mainGame.runOnUiThread(new Runnable() {
+
+				public void run() {
+					View v = new View(mainGame);
+					v.setId(R.id.btn_clear);
+					mainGame.onClick(v);
 				}
 				
 			});

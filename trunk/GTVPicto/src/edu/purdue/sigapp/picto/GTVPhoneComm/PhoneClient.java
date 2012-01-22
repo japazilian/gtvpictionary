@@ -59,6 +59,18 @@ public class PhoneClient {
 		sendMessage(""+Constants.TOUCH);
 	}
 	
+	public void sendBtnCorrect() {
+		sendMessage(""+Constants.BTNCORRECT);
+	}
+	
+	public void sendBtnIncorrect() {
+		sendMessage(""+Constants.BTNINCORRECT);
+	}
+	
+	public void sendBtnClear() {
+		sendMessage(""+Constants.BTNCLEAR);
+	}
+	
 	public void sendMessage(String s) {
 		out.println(s);
 	}
