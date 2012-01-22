@@ -2,10 +2,12 @@ package edu.purdue.sigapp.picto;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 
 public class StartScreen extends Activity implements OnClickListener{
     /** Called when the activity is first created. */
@@ -24,6 +26,20 @@ public class StartScreen extends Activity implements OnClickListener{
         opts_btn.setOnClickListener(this);
         
         sm = new SoundManager(this);
+        
+    }
+    
+    @Override
+    public void onWindowFocusChanged (boolean hasFocus) {
+    	super.onWindowFocusChanged(hasFocus);
+    	
+        LinearLayout mainImage = (LinearLayout) findViewById(R.id.LinearLayout);
+        mainImage.setBackgroundResource(R.anim.main_anim);
+
+        AnimationDrawable mainAnimation = (AnimationDrawable) mainImage.getBackground();
+       
+        //mainAnimation.setVisible(false, true); //reset! see previous section
+        mainAnimation.start();
     }
     
     public void onClick(View arg0) {
@@ -33,6 +49,7 @@ public class StartScreen extends Activity implements OnClickListener{
 			startActivity(sni);
     	}
     	else if (arg0.getId() == R.id.imageButton2) {
+    		sm.PlaySound(SoundManager.NEGATIVE_SOUND);
     	}
     }
 }
