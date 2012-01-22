@@ -59,6 +59,27 @@ public class WordBank {
 		builder.append("roller blading gingerbread man bowtie ");
 		builder.append("half spare wax ");
 		builder.append("light bulb platypus music ");
+		// easy words
+		builder.append("cat sun cup ");
+		builder.append("ghost ﬂower pie ");
+		builder.append("cow banana snowﬂake ");
+		builder.append("bug book jar ");
+		builder.append("snake light tree ");
+		builder.append("lips apple slide ");
+		builder.append("socks smile swing ");
+		builder.append("coat shoe water ");
+		builder.append("heart hat ocean ");
+		builder.append("kite dog mouth ");
+		builder.append("milk duck eyes ");
+		builder.append("skateboard bird boy ");
+		builder.append("apple person girl ");
+		builder.append("mouse ball house ");
+		builder.append("star nose bed ");
+		builder.append("whale jacket shirt ");
+		builder.append("hippo beach egg ");
+		builder.append("face cookie cheese ");
+		builder.append("ice cream cone drum circle ");
+		builder.append("spoon worm spider web ");
 		hard_words = builder.toString();
 	}
 	

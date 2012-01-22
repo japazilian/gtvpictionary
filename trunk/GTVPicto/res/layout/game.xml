@@ -31,7 +31,7 @@
         android:textColor="@color/text_color"
         android:textSize="30sp" />
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/linearLayout1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -44,20 +44,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" 
             android:src="@drawable/incorrect_btn" 
-            android:layout_weight=".5" 
             android:background="#0000" 
-            android:scaleType="fitXY" />
+            android:scaleType="fitXY" android:adjustViewBounds="false"/>
 
         <ImageButton
             android:id="@+id/btn_correct"
+            android:layout_alignParentRight="true"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" 
-            android:background="#0000" 
-            android:layout_weight=".5" 
-            android:src="@drawable/correct_btn"
-            android:scaleType="fitXY" />
+            android:layout_height="wrap_content"
+            android:background="#0000"
+            android:scaleType="fitXY"
+            android:src="@drawable/correct_btn" />
         
-    </LinearLayout>
+    </RelativeLayout>
 
     <edu.purdue.sigapp.picto.DrawingSurface
         android:id="@+id/surfaceView1"
