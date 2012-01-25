@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import edu.purdue.sigapp.picto.DrawingPoint;
@@ -19,7 +19,9 @@ public class PhoneClient {
 	private int port = 4444;
     PrintWriter out = null;
     BufferedReader in = null;
+    private Socket clientSocket;
     private MainGame mainGame;
+    private Thread mClientConnectThread = null;
     
     public PhoneClient(MainGame mainGame, String code) {
     	this.mainGame = mainGame;
@@ -27,52 +29,44 @@ public class PhoneClient {
     }
 	
 	public void startClient() {
-        Socket clientSocket = null;
-        mainGame.runOnUiThread(new Runnable() {
+		
+		mClientConnectThread = new Thread(new Runnable() {
 
 			public void run() {
 				// TODO Auto-generated method stub
-				mainGame.progdialog = ProgressDialog.show(mainGame, "", 
-		                "Looking for GTV. Please wait...", true);
-				mainGame.progdialog.setCancelable(false);
-				mainGame.progdialog.show();		        
+				clientSocket = null;
+		        while (clientSocket == null) {
+			        try {
+			            clientSocket = new Socket(host, port);
+			            out = new PrintWriter(clientSocket.getOutputStream(), true);
+			            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+			        } catch (UnknownHostException e) {
+			            e.printStackTrace();
+			        } catch (IOException e) {
+			            e.printStackTrace();
+			        }
+		        }
+		        
+		        mainGame.progdialog.dismiss();
 			}
-        	
-        });
-        while (clientSocket == null) {
-	        try {
-	            clientSocket = new Socket(host, port);
-	            out = new PrintWriter(clientSocket.getOutputStream(), true);
-	            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-	        } catch (UnknownHostException e) {
-	            e.printStackTrace();
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-        }
-        mainGame.runOnUiThread(new Runnable() {
-
-			public void run() {
-				mainGame.progdialog.dismiss();
+			
+		});
+		mainGame.progdialog = new ProgressDialog(mainGame);
+		mainGame.progdialog.setCancelable(false);
+		mainGame.progdialog.setTitle("Searching");
+		mainGame.progdialog.setMessage("Searching for Group Viewer on your " +
+				"network, please launch Picto on your other Android device");
+		mainGame.progdialog.setButton("Cancel", 
+				new DialogInterface.OnClickListener() {
+			
+			public void onClick(DialogInterface dialog, int which) {
+				PhoneClient.this.close();			
+				mainGame.finish();
 			}
-        	
-        });
- 
-        /*BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-        String fromServer;
-        String fromUser;
- 
-        while ((fromServer = in.readLine()) != null) {
-            System.out.println("Server: " + fromServer);
-            if (fromServer.equals("Bye."))
-                break;
-             
-            fromUser = stdIn.readLine();
-	        if (fromUser != null) {
-	                System.out.println("Client: " + fromUser);
-	                out.println(fromUser);
-	        }
-        }*/
+		});		
+		mainGame.progdialog.show();
+		
+		mClientConnectThread.start();
 	}
 	
 	public void sendPoint(DrawingPoint p) {
@@ -108,7 +102,11 @@ public class PhoneClient {
 		try {
 			out.close();
 			in.close();
-		} catch (IOException e) {
+			clientSocket.close();
+			if (mClientConnectThread != null) {
+				mClientConnectThread.stop();
+			}
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

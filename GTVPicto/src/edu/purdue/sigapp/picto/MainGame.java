@@ -57,6 +57,7 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 	private ImageButton btn_clear, btn_tools, btn_correct, btn_incorrect;
 	public DrawingSurface ds_canvas;
 	private PhoneClient mPhoneClient;
+	private GTVServer	mGTVServer;
 	private boolean isGTV = false;
 	public ProgressDialog progdialog;
 	private WordBank mWordBank;
@@ -78,8 +79,8 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
         setUpGUI();
         
         if (isGTV) {
-        	GTVServer server = new GTVServer(this);
-        	server.startServer();
+        	mGTVServer = new GTVServer(this);
+        	mGTVServer.startServer();
         }
         else {
         	mPhoneClient = new PhoneClient(this, code);
@@ -466,5 +467,18 @@ public class MainGame extends Activity implements OnTouchListener, OnClickListen
 		}
 		
 	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		if (isGTV) {
+			mGTVServer.close();
+		}
+		else {
+			mPhoneClient.close();
+		}
+	}
+	
+	
 }
 

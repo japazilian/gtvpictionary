@@ -23,8 +23,12 @@ public class StartScreen extends Activity implements OnClickListener{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
-        
+        setContentView(R.layout.main);        
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
         play_btn = (ImageButton)findViewById(R.id.imageButton1);
         play_btn.setOnClickListener(this);
         opts_btn = (ImageButton)findViewById(R.id.imageButton2);
@@ -32,7 +36,6 @@ public class StartScreen extends Activity implements OnClickListener{
         
         sm = new SoundManager(this);
         sm.PlaySound(SoundManager.MAIN_SOUND);
-        
     }
     
     @Override
