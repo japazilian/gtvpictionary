@@ -8,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.view.View;
@@ -20,6 +21,7 @@ public class GTVServer {
 	ServerSocket serverSocket = null;
     Socket clientSocket = null;
     MainGame mainGame;
+    Thread mGTVServerThread = null;
     
     public GTVServer (MainGame mainGame) {
     	this.mainGame = mainGame;
@@ -27,13 +29,10 @@ public class GTVServer {
 	
 	public void startServer() {
 		
-		Thread thread = new Thread(new Runnable() {
+		mGTVServerThread = new Thread(new Runnable() {
 
-			public void run() {/*
-				ProgressDialog dialog = ProgressDialog.show(mainGame, "", 
-		                "Looking for Phone. Please wait...", true);
-		        dialog.show();
-		        dialog.setCancelable(false);*/
+			public void run() {
+
 				try {
 			        serverSocket = new ServerSocket(4444);
 			    } catch (IOException e1) {
@@ -45,6 +44,8 @@ public class GTVServer {
 			    } catch (IOException e) {
 			        e.printStackTrace();
 			    }
+			    
+			    mainGame.progdialog.dismiss();
 			    
 			    try {
 					PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -65,7 +66,22 @@ public class GTVServer {
 			}
 			
 		});
-		thread.start();
+		mainGame.progdialog = new ProgressDialog(mainGame);
+		mainGame.progdialog.setCancelable(false);
+		mainGame.progdialog.setTitle("Searching");
+		mainGame.progdialog.setMessage("Searching for Drawing Pad on your " +
+				"network, please launch Picto on your other Android device");
+		mainGame.progdialog.setButton("Cancel", 
+				new DialogInterface.OnClickListener() {
+			
+			public void onClick(DialogInterface dialog, int which) {
+				GTVServer.this.close();			
+				mainGame.finish();
+			}
+		});		
+		mainGame.progdialog.show();
+		
+		mGTVServerThread.start();
 		
 	}
 
@@ -157,7 +173,10 @@ public class GTVServer {
 		try {
 			clientSocket.close();
 			serverSocket.close();
-		} catch (IOException e) {
+			if (mGTVServerThread != null) {
+				mGTVServerThread.stop();
+			}
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
